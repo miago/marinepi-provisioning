@@ -40,25 +40,28 @@
     state: latest
   vars:
     packages:
-    - build-essential
-    - git
-    - curl
-    - htop
-    - nmap
-    - tmux
-    - zsh
-    - nmon
-    - dstat
-    - rpi-update
-    - haveged
     - avahi-daemon
-    - rng-tools
-    - netatalk
-    - screen
+    - bc
+    - build-essential
+    - curl
+    - dkms
     - dnsutils
-    - wavemon
-    - telnet
+    - dstat
+    - git
+    - haveged
+    - htop
+    - netatalk
+    - nmap
+    - nmon
+    - rng-tools
+    - rpi-update
+    - screen
     - speedtest-cli
+    - telnet
+    - tmux
+    - vim
+    - wavemon
+    - zsh
   notify: reboot
 
 - name: Autoremove any unused packages
