@@ -15,11 +15,6 @@ if [ ! -f "$PLAYBOOK" ]; then
   exit 1
 fi
 
-if grep -q $HOST ~/.ssh/known_hosts; then
-  echo -e "\nRemoving $HOST from ~/.ssh/known_hosts..\n\n"
-  ssh-keygen -R $HOST
-fi
-
 export ANSIBLE_ROLES_PATH=$(dirname $0)/roles
 
 #docker pull may take a long time and ssh control connection times out
