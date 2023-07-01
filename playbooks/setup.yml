@@ -13,36 +13,26 @@
 # limitations under the License.
 
 ---
-- hosts: all
+- name: First run setup
+  hosts: all
   become: yes
   user: "{{ ansible_ssh_user }}"
 
-  handlers:
-    - include: handlers/handlers.yml
-
-  vars:
-    ssh_public_key: ~/.ssh/id_rsa.pub
-
-  vars_prompt:
-    - name: new_password
-      prompt: "Enter new password"
-      private: yes
-
   tasks:
-    - name: Create .ssh
-      file: state=directory dest=/home/{{ ansible_ssh_user }}/.ssh/ owner={{ ansible_ssh_user }} group={{ ansible_ssh_user }}
-
-    - name: Push SSH key to the Raspberry Pi
-      copy: src={{ ssh_public_key }} dest=/home/{{ ansible_ssh_user }}/.ssh/authorized_keys owner={{ ansible_ssh_user }} group={{ ansible_ssh_user }}
-
-    - name: Change default user password
-      shell: echo {{ ansible_ssh_user }}:{{ new_password }} | sudo chpasswd
-      no_log: yes
-
     - name: Expand filesystem
       shell: "raspi-config --expand-rootfs"
       become: yes
-      notify: reboot
+      notify: Reboot host and wait for it to restart
 
     - name: Show IP Address
       debug: var=hostvars[inventory_hostname]['ansible_default_ipv4']['address']
+
+  handlers:
+    - name: Reboot host and wait for it to restart
+      reboot:
+        msg: "Reboot"
+        connect_timeout: 5
+        reboot_timeout: 120
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: whoami
