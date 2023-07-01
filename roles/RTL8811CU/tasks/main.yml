@@ -1,0 +1,30 @@
+# Copyright 2023 Mirco Gysin cr@2032.ch
+
+---
+# Assuming fresh Raspbian Bullseye Lite installation
+
+- name: Git checkout
+  ansible.builtin.git:
+    repo: 'https://github.com/fastoe/RTL8811CU_for_Raspbian'
+    dest: "~/rtl8811cu"
+    version: v5.8.7
+
+- name: make target
+  make:
+    chdir: "~/rtl8811cu"
+
+- name: Run install target as root
+  make:
+    chdir: "~/rtl8811cu"
+    target: install
+  become: yes
+
+- name: Add the rtl8811cu module
+  community.general.modprobe:
+    name: 8821cu
+    state: present
+    persistent: present
+  notify: reboot
+
+# Reboot due to possible changes now
+- meta: flush_handlers
