@@ -1,3 +1,4 @@
 .idea/
 playbooks/*
 !playbooks/example-boat.yml
+.DS_Store
