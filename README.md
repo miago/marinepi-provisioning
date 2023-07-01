@@ -14,34 +14,23 @@ Usage
 =====
 
 1. [Install Ansible](http://docs.ansible.com/ansible/intro_installation.html) on your computer and verify that it works
-    - ansible --version
+    - `ansible --version`
     - note: on MacOS Ansible might not be added to your PATH in bash_profile, see [2nd answer in this thread](https://stackoverflow.com/questions/35898734/pip-installs-packages-successfully-but-executables-not-found-from-command-line/35899029) on how to fixed that.
 1. Install Raspberry OS Lite on an SD-card with your local computer.
-    - Download the [Raspberry Pi Imager] (https://www.raspberrypi.org/software/) and install the OS (the tool will download the latest image). It is also possible to [configure and enable remote access](https://pimylifeup.com/raspberry-pi-enable-ssh-without-monitor/#enabling-ssh-through-the-raspberry-pi-imager) already at this stage in Imager and skip the step (3) below.
-    - Alternatively you can download the image yourself and write this to the SD-card with a tool like [Belena Etcher](https://www.balena.io/etcher/) or directly from the command line with the following commands:
-        ```
-        diskutil list
-        diskutil unmountDisk /dev/<disk#>
-        sudo dd bs=1m if=<your image file>.img of=/dev/<disk#>
-        ```
-1. [Enable remote access](https://www.raspberrypi.org/documentation/remote-access/ssh/) while the SD-Card is still in the computer.
-    - ssh
-        - Windows: create an empty file `ssh` on the SD-card (which now has the volume label 'boot)
-        - Linux/MacOS: create the empty file with this command: `touch /Volumes/bootfs/ssh`
-    - [create default user](https://reelyactive.github.io/diy/pi-prep/) (since [Bullseye](https://www.raspberrypi.com/news/raspberry-pi-bullseye-update-april-2022/))
-    - Alternatively, [both ssh and the default user can be enabled and created](https://pimylifeup.com/raspberry-pi-enable-ssh-without-monitor/#enabling-ssh-through-the-raspberry-pi-imager) in the [Raspberry Pi Imager](https://www.raspberrypi.org/software/) in the previous step (2)
-    - Optionally, configure the Raspberry Pi to [connect to your Wifi network](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md) (otherwise you have to connect through Ethernet)
-        - Create a file `wpa_supplicants.conf` on the SD-card with the following content:
-        ```
-        ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-        update_config=1
-        country=<Insert 2 letter ISO 3166-1 country code here>
 
-        network={
-        ssid="<Name of your wireless LAN>"
-        psk="<Password for your wireless LAN>"
-        }
-       ```
+    - Download the [Raspberry Pi Imager](https://www.raspberrypi.org/software/) and start the application
+    - Select Raspberry Pi OS Lite (32-bit)
+    - Under `Advanced options`:
+
+        - set the hostname to `marinepi` (can be changed later, it's the one used within the scripts here)
+        - enable SSH and add your public key
+        - set username `pi` and set a passsword `raspberry` or something better
+        - configure a wireless lan if your RPi is not connected with ethernet
+    - Write your SD Card
+1. (Optional) For UART debugging
+    1. Enable uart debugging by appending `enable_uart=1` to `config.txt` found in your boot partition
+    1. Connect your UART-USB cable to the Rasperry Pi.![image-20230607173852659](./res/rpi-uart-header.jpg)
+
 1. Insert SD-card in the Raspberry Pi and test the network connection.
     - ssh into your Pi with [standard credentials](https://www.raspberrypi.org/documentation/linux/usage/users.md) (username=pi, password=raspberry):
             `ssh <ip> -l pi`
@@ -50,14 +39,10 @@ Usage
     - 'cd marinepi-provisioning'
 1. Run `./firstrun.sh` from your computer, for the initial setup of your Raspberry Pi.
     - This script will:
-        - copy over your [ssh key](https://www.raspberrypi.org/documentation/remote-access/ssh/passwordless.md) for secure passwordles access from your computer.
-        - change the default password for user `pi` (which is `raspberry`)  
-        You will be asked for a new password, be aware that characters like '@' seem to crash the process
         - expand the filesystem
-    - The script assumes that your Raspberry Pi is configured with the standard hostname `raspberrypi.local`. If you want to use its IP address, or another hostname use: `./firstrun.sh <ip-of-your-raspi>` ([find out the IP address](https://www.raspberrypi.org/documentation/remote-access/ip-address.md)).
+    - The script assumes that your Raspberry Pi is configured with the standard hostname `marinepi.local`. If you want to use its IP address, or another hostname use: `./firstrun.sh <ip-of-your-raspi>` ([find out the IP address](https://www.raspberrypi.org/documentation/remote-access/ip-address.md)).
     - Known problems:
         - MacOS users might see an error because 'sshpass' is not installed by default. See [answer in this thread](https://stackoverflow.com/questions/32255660/how-to-install-sshpass-on-mac) on how to install sshpass (first install XCode and than the XCode command line utilities)
-  
 1. Create a copy of `playbooks/example-boat.yml` and edit the settings to match your environment such as the hostname, wifi and hotspot settings, etc.
 1. Run `./provision.sh <ip-of-your-raspi> playbooks/example-boat.yml` to provision the software & configurations for the roles in example-boat.yml.
     - Known problems: 
@@ -65,7 +50,7 @@ Usage
         - An error on installing pysk, see issues on github repo for a solution
     - When the process is finished your Raspberry Pi is ready.  
     Configure signalk through the browser: http://raspberrypi:3000/ or http://raspberrypi/ (log in at the top right and change default userid `pi` and password `password`).
-When you are done with the configuration save .signalk/defaults.json, security.json and settings.json. You can use these in a next provisioning process.
+    When you are done with the configuration save .signalk/defaults.json, security.json and settings.json. You can use these in a next provisioning process.
 
 Roles
 =====
